@@ -46,7 +46,7 @@ x-peptide-worker: &peptide-worker
   networks:
     - peptide-network
   healthcheck:
-    test: ["CMD-SHELL", "curl -f http://localhost:${PORT:-8000}/health"]
+    test: ["CMD-SHELL", "curl -f http://localhost:8001/health"]
     interval: 30s
     timeout: 10s
     retries: 3
