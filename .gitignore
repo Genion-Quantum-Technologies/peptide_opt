@@ -98,3 +98,5 @@ dmypy.json
 # ===========================================
 .DS_Store
 Thumbs.db
+# Local-only Claude Code project guide (not tracked)
+CLAUDE.md
