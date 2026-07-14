@@ -17,7 +17,9 @@
 ### 环境要求
 
 - Python 3.10
-- CUDA 11.3 (用于 GPU 加速)
+- **CPU 即可运行** —— 生产部署（k3s `peptide-opt`）自 2026-07-14 起为**纯 CPU**：不申请 `nvidia.com/gpu`，核数经 `CPU_CORES` 分配。
+- （可选）CUDA GPU 仅用于加速步骤 1 的 OmegaFold；**无 GPU 时 OmegaFold 自动回落 CPU**（实测 11-mer 约 26.5s，相对分钟级的 adcp 对接可忽略）。
+  > ⚠️ 集群里那张 RTX 5070 已整卡独占给 `highfold-c2c`（AF2/JAX），**不要给 peptide-opt 申请 GPU**。
 
 ### 依赖软件安装
 
