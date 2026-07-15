@@ -1,5 +1,7 @@
 # Peptide Optimization CI/CD 文档和脚本
 
+> ⚠️ **LEGACY / 已废弃（2026-07-14，ADR 0012）**：本指南描述**裸机 micromamba 单机部署**；`cicd/scripts/deploy.sh` 与 `start_peptide_service.sh` 硬编码 `/home/davis/...` 路径、并运行**已不存在的 `main.py`**（代码已迁入 `src/peptide_opt/`）。集群现由 **Argo Workflows** 运行（`peptide-opt` Deployment `replicas: 0`）。本地开发用 `python -m peptide_opt serve` 或 `docker compose -f docker/docker-compose.yml up -d`。下方步骤仅存档。
+
 这个目录包含了Peptide Optimization服务的所有CI/CD相关文件，包括部署脚本和相关文档。
 
 ## 📂 目录结构

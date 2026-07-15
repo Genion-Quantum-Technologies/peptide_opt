@@ -8,7 +8,7 @@
 
 - Docker 20.10+
 - Docker Compose 2.0+
-- NVIDIA GPU + CUDA 11.3+ (用于 OmegaFold 和 PyTorch 加速)
+- NVIDIA GPU + CUDA 12.8（**可选**；OmegaFold/PyTorch 加速，缺失则自动回退 CPU。镜像基于 `nvidia/cuda:12.8.0-runtime`，面向 RTX 5090/Blackwell）
 - nvidia-docker2 / NVIDIA Container Toolkit
 
 ### 包含的软件
@@ -18,7 +18,7 @@ Docker 镜像已预装以下依赖：
 | 软件 | 版本 | 用途 |
 |-----|------|------|
 | Python | 3.10 | 运行环境 |
-| PyTorch | 1.12.0+cu113 | 深度学习框架 |
+| PyTorch | nightly · cu128 | 深度学习框架（RTX 5090/Blackwell） |
 | OmegaFold | latest | 肽段结构预测 |
 | ADFRsuite | 1.0 | 分子对接 (AutoDock CrankPep) |
 | AutoDock Vina | 1.2.7 | 结合评分计算 |
@@ -48,14 +48,14 @@ sudo apt-get update && sudo apt-get install -y nvidia-docker2
 sudo systemctl restart docker
 
 # 验证 GPU 支持
-docker run --rm --gpus all nvidia/cuda:11.3.1-base-ubuntu20.04 nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.8.0-base-ubuntu22.04 nvidia-smi
 ```
 
 ### 2. 配置环境变量
 
 ```bash
 # 复制环境变量模板
-cp .env.docker .env
+cp .env.example .env
 
 # 编辑配置
 vim .env
@@ -74,7 +74,7 @@ DB_NAME=mydatabase
 SEAWEED_FILER_ENDPOINT=http://seaweedfs:8888
 SEAWEED_BUCKET=astramolecula
 
-# 任务处理配置
+# 任务处理配置（⚠️ 仅遗留本地轮询 worker 用；集群自 2026-07-14 起改用 Argo，轮询默认关闭，见 ADR 0012）
 MAX_WORKERS=2
 POLL_INTERVAL=30
 ```
@@ -100,8 +100,8 @@ docker compose logs -f peptide-opt
 # 修改 .env 中的数据库和存储地址
 vim .env
 
-# 启动
-docker compose -f docker-compose.standalone.yml up -d
+# 启动（无 docker-compose.standalone.yml；用 docker/docker-compose.yml，改 .env 指向外部 DB/SeaweedFS）
+docker compose -f docker/docker-compose.yml up -d
 ```
 
 #### GPU 加速部署
@@ -110,11 +110,11 @@ docker compose -f docker-compose.standalone.yml up -d
 # 确保安装了 NVIDIA Container Toolkit
 # https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html
 
-# 构建 GPU 镜像
-docker build -f Dockerfile.gpu -t peptide-opt:gpu .
+# 构建镜像（无独立 Dockerfile.gpu；docker/Dockerfile 已是 CUDA 12.8 / GPU-capable）
+docker build -f docker/Dockerfile -t peptide-opt:gpu .
 
 # 启动
-docker compose -f docker-compose.gpu.yml up -d
+docker compose -f docker/docker-compose.gpu.yml up -d
 ```
 
 ## 常用命令
@@ -309,11 +309,7 @@ cat > docker-compose.override.yml << 'EOF'
 services:
   peptide-opt:
     volumes:
-      - ./main.py:/app/main.py:ro
-      - ./async_task_processor.py:/app/async_task_processor.py:ro
-      - ./peptide_optimizer.py:/app/peptide_optimizer.py:ro
-      - ./config:/app/config:ro
-      - ./services:/app/services:ro
+      - ./src:/app/src:ro   # 代码已重构进 src/peptide_opt/（原根级 main.py/async_task_processor.py/peptide_optimizer.py/config/services 已删除）
     environment:
       - LOG_LEVEL=DEBUG
 EOF

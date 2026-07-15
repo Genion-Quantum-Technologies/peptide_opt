@@ -192,7 +192,7 @@ docker compose logs -f peptide-opt
 
 ## 保留的旧文件
 
-以下旧文件暂时保留以保持向后兼容，建议逐步迁移后删除：
+以下旧文件当时暂时保留以保持向后兼容。**注（2026-07）：这些根级旧文件后续已全部删除，代码只保留在 `src/peptide_opt/` 下，迁移已完成。**
 
 - `peptide_optimizer.py` → 使用 `src/peptide_opt/core/optimizer.py`
 - `async_task_processor.py` → 使用 `src/peptide_opt/tasks/processor.py`

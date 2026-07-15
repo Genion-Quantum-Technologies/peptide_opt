@@ -2,6 +2,8 @@
 
 本文档详细列出了 `peptide_opt` 项目中所有涉及指定文件名的代码位置，包括输入文件、中间文件、输出文件和配置文件。
 
+> **⚠️ 链接失效提示（2026-07）**：本文档写于 `src/` 重构前，文中所有 `../<根级文件>` 链接（`../main.py`、`../peptide_optimizer.py`、`../async_task_processor.py`、`../config/…` 等）**均已失效**——代码已迁入 `src/peptide_opt/`（`core/optimizer.py`、`tasks/processor.py`、`api/app.py` 等，行号亦已漂移）。另：SeaweedFS 存储路径自 [ADR 0012](../../../../docs/adr/0012-compute-scheduling-plane-argo.md) 起由 `astra-step` 统一处理，实际前缀为 `jobs/peptide_optimization/{job_id}`；文中 `tasks/{task_id}/peptide/…` 为旧格式。行号仅供历史参考。
+
 ---
 
 ## 目录

@@ -2,6 +2,8 @@
 
 **日期**: 2026-01-12
 
+> **⚠️ 历史构建报告（2026-01-12）**：本报告记录当时的构建，基础镜像为 `nvidia/cuda:11.8.0-runtime` + torch 2.0.1。**现行 `docker/Dockerfile` 已改为 `nvidia/cuda:12.8.0-runtime` + PyTorch nightly cu128**（RTX 5090/Blackwell）；下文版本号为当时的存档值，不代表现状。
+
 ## 验证结果
 
 ✅ **Docker 构建成功**
