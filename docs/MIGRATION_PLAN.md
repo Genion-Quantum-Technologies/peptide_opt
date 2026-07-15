@@ -1,5 +1,7 @@
 # Peptide Optimization 迁移计划
 
+> ⚠️ **历史文档（2026-01-05 的计划）。** 本文所述"改造为轮询共享 PostgreSQL `tasks` 表 + SeaweedFS 的常驻 worker"确实实施过，但**已于 2026-07-14 被 [ADR 0012](../../../docs/adr/0012-compute-scheduling-plane-argo.md) 取代**：DB-as-queue 被废弃，peptide-opt 改为**无状态 Argo step**（`fold→dock-score→redesign→report`，长驻 Deployment `replicas: 0`），不再自己轮询数据库或读写 SeaweedFS（I/O 交给通用 `astra-step`）。本文仅存档当时的迁移思路。
+
 ## 📋 概述
 
 本文档分析 `peptide_opt` 子组件需要进行的改造，以与主系统 `AstraMolecula` 保持一致，使用 PostgreSQL 数据库和 SeaweedFS 对象存储。

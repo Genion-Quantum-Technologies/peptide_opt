@@ -6,6 +6,7 @@ FastAPI 应用工厂
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -38,17 +39,39 @@ async def lifespan(app: FastAPI):
     
     # —— 应用启动时执行 ——
     logger.info("Starting Peptide Optimization API...")
-    
+
     # 初始化异步任务处理器
     logger.info("Initializing async task processor...")
     _async_processor = AsyncTaskProcessor()
-    
-    # 启动数据库轮询
-    logger.info("Starting database polling for peptide optimization tasks...")
-    await _async_processor.start_polling()
-    
+
+    # —— 数据库轮询：默认关闭（ADR 0012 P2）——
+    #
+    # 这个轮询器已经是死代码：集群里由 Argo Workflows 领活，`peptide-opt` Deployment 已置
+    # `replicas: 0`。但**代码还活着** —— 只要这个 FastAPI 应用一启动，它就会开始抢 `tasks` 表。
+    #
+    # 🔴 为什么必须默认关掉，而不是只写句注释：
+    # compute-foundry operator 的领活条件是 `status='pending' AND workflow_name IS NULL`。它提交
+    # Workflow 后**先写 `workflow_name`**，而 `status` 要等下一次 project() 才变成 `processing`
+    # —— 这中间有个最长 10 秒的窗口，行仍然是 `pending`。任何人在本地
+    # `docker compose up` / `python -m peptide_opt serve` 并把 DB_HOST 指向生产库，就会在这个
+    # 窗口里把任务领走 → **同一个任务跑两遍，并且两次都去抢那张唯一的 GPU。**
+    #
+    # 回滚路径仍然可用：三个 worker 的 k8s Deployment 显式设了 `LEGACY_POLLER=1`，所以
+    # `kubectl scale deploy/peptide-opt --replicas=1` 依然能把老模式原样拉回来。
+    if os.environ.get("LEGACY_POLLER", "0") == "1":
+        logger.warning(
+            "LEGACY_POLLER=1 —— 启动数据库轮询。这是 ADR 0012 之前的模式；"
+            "除非你正在回滚，否则不该看到这行日志。"
+        )
+        await _async_processor.start_polling()
+    else:
+        logger.info(
+            "数据库轮询已禁用（ADR 0012：调度由 Argo Workflows + compute-foundry operator 接管）。"
+            "本进程只提供 HTTP 接口；计算走 `python -m peptide_opt.steps <stage>`。"
+        )
+
     logger.info("Peptide Optimization API startup complete")
-    
+
     yield
     
     # —— 应用关闭时执行 ——

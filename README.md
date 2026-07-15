@@ -192,7 +192,8 @@ DB_NAME=peptide_opt
 SEAWEED_FILER_ENDPOINT=http://localhost:8888
 SEAWEED_BUCKET=peptide-opt
 
-# 任务处理器
+# 任务处理器（⚠️ 仅遗留轮询 worker 用；集群自 2026-07-14 起改用 Argo，
+# 轮询默认关闭，需 LEGACY_POLLER=1 才启动 —— 见 ADR 0012）
 MAX_WORKERS=2
 POLL_INTERVAL=30
 ```
