@@ -144,7 +144,6 @@ RUN mamba run -n peptide pip install --no-cache-dir *.whl && rm -f *.whl
 # Copy additional files
 COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 COPY vendor/ProteinMPNN/ ./vendor/ProteinMPNN/
-COPY src/peptide_opt/config/settings.yaml ./config/settings.yaml
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash appuser
@@ -178,8 +177,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+HEALTHCHECK NONE
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["serve"]
+CMD ["python", "-m", "peptide_opt.steps", "--help"]
