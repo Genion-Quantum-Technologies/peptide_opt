@@ -1,3 +1,5 @@
+> Current runtime: [Argo scientific stages](docs/argo-runtime.md). Legacy HTTP/polling service instructions below are historical.
+
 # Peptide Optimization Service
 
 肽段结构优化和序列设计服务，使用 ProteinMPNN 和分子对接技术。

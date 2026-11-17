@@ -1,0 +1,11 @@
+# Preserve the verified scientific environment; remove retired service source.
+ARG BASE_IMAGE=hub.genionaitech.com/aidd/peptide-opt@sha256:74e6f16c428eab412c2991c44a6a5eb0b1d294d80d9928a43d4108fec0239a3e
+FROM ${BASE_IMAGE}
+USER root
+RUN /opt/conda/envs/peptide/bin/python -c "import importlib.util, shutil; s=importlib.util.find_spec('peptide_opt'); [shutil.rmtree(p) for p in s.submodule_search_locations]"
+ENV PYTHONPATH=/app/src
+RUN rm -rf /app/src/peptide_opt
+COPY src/peptide_opt/ /app/src/peptide_opt/
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+HEALTHCHECK NONE
+CMD ["python", "-m", "peptide_opt.steps", "--help"]
